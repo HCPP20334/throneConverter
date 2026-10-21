@@ -17,15 +17,16 @@ int main(int argc, char **argv) {
     error_argv();
     return 1;
   }
+    if (std::strcmp(argv[1], "--throne") == 0) {
+      std::cout << convertAll(argv[2],false);
+    } else if (std::strcmp(argv[1], "--raw") == 0) {
+      std::cout << convertAll(argv[2],true);
+    }
+   else{
+     error_argv();
+     return 1;
+   }
 
-  if (std::strcmp(argv[1], "--throne") == 0) {
-    std::cout << convertAll(argv[2], false) << std::endl;
-  } else if (std::strcmp(argv[1], "--raw") == 0) {
-    std::cout << convertAll(argv[2], true) << std::endl;
-  }
-  else{
-    error_argv();
-        return 1;
-  }
+
   return 0;
 }

@@ -298,7 +298,16 @@ std::string decodeLink(std::string strText, bool bIsRawJson) {
         std::string strB64 = strText.substr(strPrefix.length());
         std::vector<uint8_t> vecu8Decoded = b64ToBytes(strB64);
         std::string strJson = utf8Decode(vecu8Decoded);
+        while (!strJson.empty() && 
+                  (strJson.back() == '\0' || 
+                          strJson.back() == '\n' || 
+                                 strJson.back() == '\r' || 
+                                        strJson.back() == ' ')) {
+              strJson.pop_back();
+        }
+
         jsonOuter = json::parse(strJson);
+        
     }
     else {
         jsonOuter = json::parse(strText);
@@ -326,36 +335,29 @@ std::string decodeLink(std::string strText, bool bIsRawJson) {
 }
 
 std::string convertAll(std::string strText, bool bIsRawJson) {
-    strText.erase(std::remove(strText.begin(), strText.end(), '\n'), strText.end());
-    strText.erase(std::remove(strText.begin(), strText.end(), '\r'), strText.end());
-
-    strText = trimStr(strText);
-    std::vector<std::string> vecstrParts;
-
-    if (strText.find("throne://") == 0) {
-        std::regex rxWhitespace("\\s+");
-        std::sregex_token_iterator itStart(strText.begin(), strText.end(), rxWhitespace, -1);
-        std::sregex_token_iterator itEnd;
-        for (; itStart != itEnd; ++itStart) {
-            if (!itStart->str().empty()) vecstrParts.push_back(itStart->str());
-        }
+  strText.erase(std::remove(strText.begin(), strText.end(), '\n'), strText.end());
+  strText.erase(std::remove(strText.begin(), strText.end(), '\r'), strText.end());
+    strText = trimStr(strText); std::vector<std::string> vecstrParts;
+    if(strText.find("throne://add/") ==0 ){
+    std::regex rxWhitespace("\\s+");
+    std::sregex_token_iterator itStart(strText.begin(), strText.end(), rxWhitespace, -1); 
+    std::sregex_token_iterator itEnd; 
+    for (; itStart != itEnd; ++itStart) { 
+      if (!itStart->str().empty()) vecstrParts.push_back(itStart->str()); 
     }
-    else {
-        vecstrParts.push_back(strText);
-    }
-
-    std::string strOut = "";
-    for (size_t szIdx = 0; szIdx < vecstrParts.size(); szIdx++) {
-        try {
-            strOut += decodeLink(vecstrParts[szIdx], bIsRawJson);
-        }
-        catch (const std::exception& objException) {
-            strOut += "ERROR: ";
-            strOut += objException.what();
-        }
-        if (szIdx < vecstrParts.size() - 1) {
-            strOut += "\n";
-        }
-    }
-    return strOut;
+  } else {
+    vecstrParts.push_back(strText); 
+  }
+  std::string strOut = "";
+  for (size_t szIdx = 0; szIdx < vecstrParts.size(); szIdx++) {
+    try { 
+      strOut += decodeLink(vecstrParts[szIdx], bIsRawJson); 
+    } catch (const std::exception& objException) { 
+      strOut += "ERROR: "; 
+      strOut += objException.what(); 
+    } if (szIdx < vecstrParts.size() - 1) {
+      strOut += "\n"; 
+    } 
+  } 
+  return strOut; 
 }
